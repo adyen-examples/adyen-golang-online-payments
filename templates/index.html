@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+
+    <script
+      src="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/3.9.4/adyen.js"
+      integrity="sha384-/rpftrZptnl7EIuIvqz4PAEehQoysKXmwqUAGyH9lK3WHgcvY0lWj/S5LH7xrbf+"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://checkoutshopper-live.adyen.com/checkoutshopper/sdk/3.9.4/adyen.css"
+      integrity="sha384-6qrXvoxlnBlrflZQ9g5Yf5oZapUSSXctPxacP9oRcEukbEO7lXisuSyMKG8pDX8V"
+      crossorigin="anonymous"
+    />
+
+    <link rel="stylesheet" href="/static/css/application.css" />
+
+    <title>Checkout Demo</title>
+  </head>
+
+  <body>
+    <header id="header">
+      <a href="/">
+        <img src="/static/images/mystore-logo.svg" alt="logo" />
+      </a>
+    </header>
+    <div class="container">
+      <!--Embed the page template at this location-->
+      {{ if eq .page "main"}}
+        {{ template "main.html" .}}
+      {{end}}
+      {{ if eq .page "preview"}}
+        {{ template "preview.html" .}}
+      {{end}}
+      {{ if eq .page "payment"}}
+        {{ template "payment.html" .}}
+      {{end}}
+      {{ if eq .page "result"}}
+        {{ template "result.html" .}}
+      {{end}}
+    </div>
+  </body>
+</html>
