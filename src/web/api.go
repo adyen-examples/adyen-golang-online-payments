@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const PaymentDataCookie = "paymentData"
+const PaymentDataCookie = "PaymentData"
 
 func findCurrency(typ string) string {
 	switch typ {
@@ -122,13 +122,14 @@ func PaymentsHandler(c *gin.Context) {
 		return
 	}
 	if res.Action != nil && res.Action.PaymentData != "" {
+		c.SetCookie(PaymentDataCookie, res.Action.PaymentData, 3600, "/api", "", false, true)
 		log.Printf("Setting payment data cookie %s\n", res.Action.PaymentData)
-		c.SetCookie(PaymentDataCookie, res.Action.PaymentData, 3600, "", "localhost", false, true)
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusOK, map[string]string{
-			"pspReference": res.PspReference,
-			"resultCode":   res.ResultCode.String(),
+			"pspReference":  res.PspReference,
+			"resultCode":    res.ResultCode.String(),
+			"refusalReason": res.RefusalReason,
 		})
 	}
 	return
@@ -154,8 +155,9 @@ func PaymentDetailsHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusOK, map[string]string{
-			"pspReference": res.PspReference,
-			"resultCode":   res.ResultCode.String(),
+			"pspReference":  res.PspReference,
+			"resultCode":    res.ResultCode.String(),
+			"refusalReason": res.RefusalReason,
 		})
 	}
 	return
@@ -177,12 +179,14 @@ func RedirectHandler(c *gin.Context) {
 		return
 	}
 	paymentData, err := c.Cookie(PaymentDataCookie)
-	log.Printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>Cookie paymentData %s", paymentData)
+	c.SetCookie(PaymentDataCookie, "", -1, "/api", "", false, true)
 
 	if err != nil {
 		handleError("RedirectHandler", c, err, nil)
 		return
 	}
+	log.Printf("Cookie paymentData: %s", paymentData)
+
 	var details map[string]interface{}
 	if redirect.Payload != "" {
 		details = map[string]interface{}{
@@ -200,11 +204,12 @@ func RedirectHandler(c *gin.Context) {
 	log.Printf("Request for %s API::\n%+v\n", "PaymentDetails", req)
 	res, httpRes, err := client.Checkout.PaymentsDetails(&req)
 	log.Printf("HTTP Response for %s API::\n%+v\n", "PaymentDetails", httpRes)
-	c.SetCookie(PaymentDataCookie, "", 3600, "", "localhost", false, true)
 	if err != nil {
 		handleError("RedirectHandler", c, err, httpRes)
 		return
 	}
+	log.Printf("Response for %s API::\n%+v\n", "PaymentDetails", res)
+
 	if res.PspReference != "" {
 		var redirectURL string
 		// Conditionally handle different result codes for the shopper
