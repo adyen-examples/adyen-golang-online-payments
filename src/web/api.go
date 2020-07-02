@@ -5,15 +5,15 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/adyen/adyen-go-api-library/v2/src/checkout"
 	"github.com/adyen/adyen-go-api-library/v2/src/common"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
 
-const PaymentDataCookie = "PaymentData"
+const PaymentDataCookie = "paymentData"
 
 func findCurrency(typ string) string {
 	switch typ {
@@ -41,6 +41,10 @@ func handleError(method string, c *gin.Context, err error, httpRes *http.Respons
 	}
 	c.JSON(http.StatusBadRequest, err.Error())
 }
+
+// a temporary store to keep payment data to be sent in additional payment details. This is more secure thana cookie
+// In a real application this should be in a database
+var paymentDataStore = map[string]string{}
 
 // PaymentMethodsHandler retrieves a list of available payment methods from Adyen API
 func PaymentMethodsHandler(c *gin.Context) {
@@ -77,13 +81,14 @@ func PaymentsHandler(c *gin.Context) {
 		Currency: findCurrency(pmType),
 		Value:    1000, // value is 10€ in minor units
 	}
-	req.Reference = fmt.Sprintf("%v", time.Now())
+	orderRef := uuid.Must(uuid.NewRandom())
+	req.Reference = orderRef.String()
 	req.Channel = "Web"
 	req.AdditionalData = map[string]interface{}{
 		"allow3DS2": true,
 	}
 
-	req.ReturnUrl = "http://localhost:3000/api/handleShopperRedirect"
+	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef)
 	// Required for Klarna:
 	if pmType == "klarna" {
 		req.CountryCode = "DE"
@@ -122,8 +127,8 @@ func PaymentsHandler(c *gin.Context) {
 		return
 	}
 	if res.Action != nil && res.Action.PaymentData != "" {
-		c.SetCookie(PaymentDataCookie, res.Action.PaymentData, 3600, "/", "", false, true)
-		log.Printf("Setting payment data cookie %s\n", res.Action.PaymentData)
+		log.Printf("Setting payment data cache for %s\n", orderRef)
+		paymentDataStore[orderRef.String()] = res.Action.PaymentData
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusOK, map[string]string{
@@ -174,18 +179,13 @@ func RedirectHandler(c *gin.Context) {
 	var redirect Redirect
 	log.Println("Redirect received")
 
+	paymentData := paymentDataStore[c.Query("orderRef")]
+	log.Printf("cached paymentData for %s: %s", c.Query("orderRef"), paymentData)
+
 	if err := c.ShouldBind(&redirect); err != nil {
 		handleError("RedirectHandler", c, err, nil)
 		return
 	}
-	paymentData, err := c.Cookie(PaymentDataCookie)
-	c.SetCookie(PaymentDataCookie, "", -1, "/", "", false, true)
-
-	if err != nil {
-		handleError("RedirectHandler", c, err, nil)
-		return
-	}
-	log.Printf("Cookie paymentData: %s", paymentData)
 
 	var details map[string]interface{}
 	if redirect.Payload != "" {
