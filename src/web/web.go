@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -22,6 +23,7 @@ func setPageAndData(c *gin.Context, data gin.H) {
 
 // IndexHandler serves the index.html page
 func IndexHandler(c *gin.Context) {
+	log.Println("Loading main page")
 	setPageAndData(c, gin.H{
 		"page": "main",
 	})
@@ -29,6 +31,7 @@ func IndexHandler(c *gin.Context) {
 
 // PreviewHandler serves the preview.html page
 func PreviewHandler(c *gin.Context) {
+	log.Println("Loading preview page")
 	setPageAndData(c, gin.H{
 		"page": "preview",
 		"type": c.Param("type"),
@@ -37,6 +40,8 @@ func PreviewHandler(c *gin.Context) {
 
 // CheckoutHandler serves the payment.html page
 func CheckoutHandler(c *gin.Context) {
+	log.Println("Loading payment page")
+
 	setPageAndData(c, gin.H{
 		"page":      "payment",
 		"type":      c.Param("type"),
@@ -46,6 +51,8 @@ func CheckoutHandler(c *gin.Context) {
 
 // ResultHandler serves the result.html page
 func ResultHandler(c *gin.Context) {
+	log.Println("Loading result page")
+
 	status := c.Param("status")
 	refusalReason := c.Query("reason")
 	var msg, img string

@@ -122,7 +122,7 @@ func PaymentsHandler(c *gin.Context) {
 		return
 	}
 	if res.Action != nil && res.Action.PaymentData != "" {
-		c.SetCookie(PaymentDataCookie, res.Action.PaymentData, 3600, "/api", "", false, true)
+		c.SetCookie(PaymentDataCookie, res.Action.PaymentData, 3600, "/", "", false, true)
 		log.Printf("Setting payment data cookie %s\n", res.Action.PaymentData)
 		c.JSON(http.StatusOK, res)
 	} else {
@@ -179,7 +179,7 @@ func RedirectHandler(c *gin.Context) {
 		return
 	}
 	paymentData, err := c.Cookie(PaymentDataCookie)
-	c.SetCookie(PaymentDataCookie, "", -1, "/api", "", false, true)
+	c.SetCookie(PaymentDataCookie, "", -1, "/", "", false, true)
 
 	if err != nil {
 		handleError("RedirectHandler", c, err, nil)
