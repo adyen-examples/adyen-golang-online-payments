@@ -16,7 +16,6 @@ This repository includes examples of PCI-compliant UI integrations for online pa
   - giropay
   - iDEAL
   - Klarna (Pay now, Pay later, Slice it)
-  - SEPA Direct Debit
   - SOFORT
 
 Each demo leverages Adyen's API Library for Golang ([GitHub](https://github.com/Adyen/adyen-go-api-library) | [Docs](https://docs.adyen.com/development-resources/libraries#go)).
