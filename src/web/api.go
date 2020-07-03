@@ -180,8 +180,10 @@ func RedirectHandler(c *gin.Context) {
 	var redirect Redirect
 	log.Println("Redirect received")
 
-	paymentData := paymentDataStore[c.Query("orderRef")]
-	log.Printf("cached paymentData for %s: %s", c.Query("orderRef"), paymentData)
+	orderRef := c.Query("orderRef")
+	paymentData := paymentDataStore[orderRef]
+	log.Printf("cached paymentData for %s: %s", orderRef, paymentData)
+	delete(paymentDataStore, orderRef)
 
 	if err := c.ShouldBind(&redirect); err != nil {
 		handleError("RedirectHandler", c, err, nil)
