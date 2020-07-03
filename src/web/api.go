@@ -43,8 +43,8 @@ func handleError(method string, c *gin.Context, err error, httpRes *http.Respons
 	c.JSON(http.StatusBadRequest, err.Error())
 }
 
-// a temporary store to keep payment data to be sent in additional payment details. This is more secure thana cookie
-// In a real application this should be in a database
+// A temporary store to keep payment data to be sent in additional payment details and redirects.
+// This is more secure than a cookie. In a real application this should be in a database.
 var paymentDataStore = map[string]string{}
 
 // PaymentMethodsHandler retrieves a list of available payment methods from Adyen API
