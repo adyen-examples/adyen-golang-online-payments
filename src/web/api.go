@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/adyen/adyen-go-api-library/v2/src/checkout"
 	"github.com/adyen/adyen-go-api-library/v2/src/common"
@@ -90,7 +91,7 @@ func PaymentsHandler(c *gin.Context) {
 
 	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef)
 	// Required for Klarna:
-	if pmType == "klarna" {
+	if strings.Contains(pmType, "klarna") {
 		req.CountryCode = "DE"
 		req.ShopperReference = "12345"
 		req.ShopperEmail = "youremail@email.com"
