@@ -1,11 +1,11 @@
-const originKey = document.getElementById("originKey").innerHTML;
+const clientKey = document.getElementById("clientKey").innerHTML;
 const type = document.getElementById("type").innerHTML;
 
 callServer("/api/getPaymentMethods", {})
   .then((paymentMethodsResponse) => {
     const configuration = {
       paymentMethodsResponse,
-      originKey,
+      clientKey,
       locale: "en_US",
       environment: "test",
       showPayButton: true,

@@ -45,7 +45,7 @@ func CheckoutHandler(c *gin.Context) {
 	setPageAndData(c, gin.H{
 		"page":      "payment",
 		"type":      c.Param("type"),
-		"originKey": os.Getenv("ORIGIN_KEY"),
+		"clientKey": os.Getenv("CLIENT_KEY"),
 	})
 }
 
