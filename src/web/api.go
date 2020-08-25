@@ -170,9 +170,10 @@ func PaymentDetailsHandler(c *gin.Context) {
 }
 
 type Redirect struct {
-	MD      string
-	PaRes   string
-	Payload string `form:"payload"`
+	MD             string
+	PaRes          string
+	Payload        string `form:"payload"`
+	RedirectResult string `form:"redirectResult"`
 }
 
 // RedirectHandler handles POST and GET redirects from Adyen API
@@ -194,6 +195,10 @@ func RedirectHandler(c *gin.Context) {
 	if redirect.Payload != "" {
 		details = map[string]interface{}{
 			"payload": redirect.Payload,
+		}
+	} else if redirect.RedirectResult != "" {
+		details = map[string]interface{}{
+			"redirectResult": redirect.RedirectResult,
 		}
 	} else {
 		details = map[string]interface{}{

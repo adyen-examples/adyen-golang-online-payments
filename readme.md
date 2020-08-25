@@ -34,7 +34,7 @@ git clone https://github.com/adyen-examples/adyen-golang-online-payments.git
 
 ## Usage
 
-1. Create a `./.env` file with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication), and merchant account name (all credentials are in string format):
+1. Create a `./.env` file with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication) - Remember to add `http://localhost:3000` as an origin for client key, and merchant account name (all credentials are in string format):
 
 ```
 API_KEY="your_API_key_here"
