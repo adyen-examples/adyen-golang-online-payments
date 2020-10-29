@@ -14,35 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const PaymentDataCookie = "paymentData"
-
-func findCurrency(typ string) string {
-	switch typ {
-	case "ach":
-		return "USD"
-	case "wechatpayqr":
-	case "alipay":
-		return "CNY"
-	case "dotpay":
-		return "PLN"
-	case "boletobancario":
-	case "boletobancario_santander":
-		return "BRL"
-	default:
-		return "EUR"
-	}
-	return ""
-}
-
-func handleError(method string, c *gin.Context, err error, httpRes *http.Response) {
-	log.Printf("Error in %s: %s\n", method, err.Error())
-	if httpRes != nil && httpRes.StatusCode >= 300 {
-		c.JSON(httpRes.StatusCode, err.Error())
-		return
-	}
-	c.JSON(http.StatusBadRequest, err.Error())
-}
-
 // A temporary store to keep payment data to be sent in additional payment details and redirects.
 // This is more secure than a cookie. In a real application this should be in a database.
 var paymentDataStore = map[string]string{}
@@ -88,7 +59,7 @@ func PaymentsHandler(c *gin.Context) {
 	req.AdditionalData = map[string]interface{}{
 		"allow3DS2": true,
 	}
-
+	req.MerchantAccount = merchantAccount
 	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef)
 	// Required for Klarna:
 	if strings.Contains(pmType, "klarna") {
@@ -117,7 +88,6 @@ func PaymentsHandler(c *gin.Context) {
 			},
 		}
 	}
-	req.MerchantAccount = merchantAccount
 
 	log.Printf("Request for %s API::\n%+v\n", "Payments", req)
 	res, httpRes, err := client.Checkout.Payments(&req)
@@ -130,14 +100,8 @@ func PaymentsHandler(c *gin.Context) {
 	if res.Action != nil && res.Action.PaymentData != "" {
 		log.Printf("Setting payment data cache for %s\n", orderRef)
 		paymentDataStore[orderRef.String()] = res.Action.PaymentData
-		c.JSON(http.StatusOK, res)
-	} else {
-		c.JSON(http.StatusOK, map[string]string{
-			"pspReference":  res.PspReference,
-			"resultCode":    res.ResultCode.String(),
-			"refusalReason": res.RefusalReason,
-		})
 	}
+	c.JSON(http.StatusOK, res)
 	return
 }
 
@@ -157,15 +121,7 @@ func PaymentDetailsHandler(c *gin.Context) {
 		handleError("PaymentDetailsHandler", c, err, httpRes)
 		return
 	}
-	if res.Action != nil {
-		c.JSON(http.StatusOK, res)
-	} else {
-		c.JSON(http.StatusOK, map[string]string{
-			"pspReference":  res.PspReference,
-			"resultCode":    res.ResultCode.String(),
-			"refusalReason": res.RefusalReason,
-		})
-	}
+	c.JSON(http.StatusOK, res)
 	return
 }
 
@@ -184,7 +140,6 @@ func RedirectHandler(c *gin.Context) {
 	orderRef := c.Query("orderRef")
 	paymentData := paymentDataStore[orderRef]
 	log.Printf("cached paymentData for %s: %s", orderRef, paymentData)
-	delete(paymentDataStore, orderRef)
 
 	if err := c.ShouldBind(&redirect); err != nil {
 		handleError("RedirectHandler", c, err, nil)
@@ -250,4 +205,33 @@ func RedirectHandler(c *gin.Context) {
 	}
 	c.JSON(httpRes.StatusCode, httpRes.Status)
 	return
+}
+
+/* Utils */
+
+func findCurrency(typ string) string {
+	switch typ {
+	case "ach":
+		return "USD"
+	case "wechatpayqr":
+	case "alipay":
+		return "CNY"
+	case "dotpay":
+		return "PLN"
+	case "boletobancario":
+	case "boletobancario_santander":
+		return "BRL"
+	default:
+		return "EUR"
+	}
+	return ""
+}
+
+func handleError(method string, c *gin.Context, err error, httpRes *http.Response) {
+	log.Printf("Error in %s: %s\n", method, err.Error())
+	if httpRes != nil && httpRes.StatusCode >= 300 {
+		c.JSON(httpRes.StatusCode, err.Error())
+		return
+	}
+	c.JSON(http.StatusBadRequest, err.Error())
 }

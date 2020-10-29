@@ -1,25 +1,9 @@
 const clientKey = document.getElementById("clientKey").innerHTML;
 const type = document.getElementById("type").innerHTML;
 
-function filterUnimplemented(pm) {
-  pm.paymentMethods = pm.paymentMethods.filter((it) =>
-    [
-      "ach",
-      "scheme",
-      "dotpay",
-      "giropay",
-      "ideal",
-      "directEbanking",
-      "klarna_paynow",
-      "klarna",
-      "klarna_account",
-    ].includes(it.type)
-  );
-  return pm;
-}
-
-callServer("/api/getPaymentMethods", {})
-  .then((paymentMethodsResponse) => {
+async function initCheckout() {
+  try {
+    const paymentMethodsResponse = await callServer("/api/getPaymentMethods", {});
     const configuration = {
       paymentMethodsResponse: filterUnimplemented(paymentMethodsResponse),
       clientKey,
@@ -41,7 +25,9 @@ callServer("/api/getPaymentMethods", {})
         },
       },
       onSubmit: (state, component) => {
-        handleSubmission(state, component, "/api/initiatePayment");
+        if (state.isValid) {
+          handleSubmission(state, component, "/api/initiatePayment");
+        }
       },
       onAdditionalDetails: (state, component) => {
         handleSubmission(state, component, "/api/submitAdditionalDetails");
@@ -49,22 +35,43 @@ callServer("/api/getPaymentMethods", {})
     };
 
     const checkout = new AdyenCheckout(configuration);
-
     checkout.create(type).mount(document.getElementById(type));
-  })
-  .catch((error) => {
-    throw Error(error);
-  });
+  } catch (error) {
+    console.error(error);
+    alert("Error occurred. Look at console for details");
+  }
+}
+
+function filterUnimplemented(pm) {
+  pm.paymentMethods = pm.paymentMethods.filter((it) =>
+    ["ach", "scheme", "dotpay", "giropay", "ideal", "directEbanking", "klarna_paynow", "klarna", "klarna_account"].includes(it.type)
+  );
+  return pm;
+}
+
+// Event handlers called when the shopper selects the pay button,
+// or when additional information is required to complete the payment
+async function handleSubmission(state, component, url) {
+  try {
+    const res = await callServer(url, state.data);
+    handleServerResponse(res, component);
+  } catch (error) {
+    console.error(error);
+    alert("Error occurred. Look at console for details");
+  }
+}
 
 // Calls your server endpoints
-function callServer(url, data) {
-  return fetch(url, {
+async function callServer(url, data) {
+  const res = await fetch(url, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: data ? JSON.stringify(data) : "",
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => res.json());
+  });
+
+  return await res.json();
 }
 
 // Handles responses sent from your server to the client
@@ -77,6 +84,7 @@ function handleServerResponse(res, component) {
         window.location.href = "/result/success";
         break;
       case "Pending":
+      case "Received":
         window.location.href = "/result/pending";
         break;
       case "Refused":
@@ -89,14 +97,4 @@ function handleServerResponse(res, component) {
   }
 }
 
-// Event handlers called when the shopper selects the pay button,
-// or when additional information is required to complete the payment
-function handleSubmission(state, component, url) {
-  if (state.isValid) {
-    callServer(url, state.data)
-      .then((res) => handleServerResponse(res, component))
-      .catch((error) => {
-        throw Error(error);
-      });
-  }
-}
+initCheckout();
