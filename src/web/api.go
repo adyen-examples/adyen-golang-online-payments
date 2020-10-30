@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/adyen/adyen-go-api-library/v2/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v2/src/common"
+	"github.com/adyen/adyen-go-api-library/v3/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v3/src/common"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
@@ -100,8 +100,14 @@ func PaymentsHandler(c *gin.Context) {
 	if res.Action != nil && res.Action.PaymentData != "" {
 		log.Printf("Setting payment data cache for %s\n", orderRef)
 		paymentDataStore[orderRef.String()] = res.Action.PaymentData
+		c.JSON(http.StatusOK, res)
+	} else {
+		c.JSON(http.StatusOK, map[string]string{
+			"pspReference":  res.PspReference,
+			"resultCode":    res.ResultCode.String(),
+			"refusalReason": res.RefusalReason,
+		})
 	}
-	c.JSON(http.StatusOK, res)
 	return
 }
 
@@ -121,7 +127,15 @@ func PaymentDetailsHandler(c *gin.Context) {
 		handleError("PaymentDetailsHandler", c, err, httpRes)
 		return
 	}
-	c.JSON(http.StatusOK, res)
+	if res.Action != nil {
+		c.JSON(http.StatusOK, res)
+	} else {
+		c.JSON(http.StatusOK, map[string]string{
+			"pspReference":  res.PspReference,
+			"resultCode":    res.ResultCode.String(),
+			"refusalReason": res.RefusalReason,
+		})
+	}
 	return
 }
 
