@@ -48,19 +48,24 @@ func PaymentsHandler(c *gin.Context) {
 		handleError("PaymentsHandler", c, err, nil)
 		return
 	}
+	req.MerchantAccount = merchantAccount // required
 	pmType := req.PaymentMethod["type"].(string)
 	req.Amount = checkout.Amount{
 		Currency: findCurrency(pmType),
 		Value:    1000, // value is 10€ in minor units
 	}
 	orderRef := uuid.Must(uuid.NewRandom())
-	req.Reference = orderRef.String()
-	req.Channel = "Web"
+	req.Reference = orderRef.String() // required
+	req.Channel = "Web"               // required
 	req.AdditionalData = map[string]interface{}{
+		// required for 3ds2 native flow
 		"allow3DS2": true,
 	}
-	req.MerchantAccount = merchantAccount
-	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef)
+	req.Origin = "http://localhost:3000" // required for 3ds2 native flow
+	req.ShopperIP = c.ClientIP()         // required by some issuers for 3ds2
+
+	// we pass the orderRef in return URL to get paymentData during redirects
+	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef) // required for 3ds2 redirect flow
 	// Required for Klarna:
 	if strings.Contains(pmType, "klarna") {
 		req.CountryCode = "DE"
