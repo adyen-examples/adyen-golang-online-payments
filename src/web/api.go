@@ -7,16 +7,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/adyen/adyen-go-api-library/v3/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v3/src/common"
+	"github.com/adyen/adyen-go-api-library/v5/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v5/src/common"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
-
-// A temporary store to keep payment data to be sent in additional payment details and redirects.
-// This is more secure than a cookie. In a real application this should be in a database.
-var paymentDataStore = map[string]string{}
 
 // PaymentMethodsHandler retrieves a list of available payment methods from Adyen API
 func PaymentMethodsHandler(c *gin.Context) {
@@ -48,8 +44,9 @@ func PaymentsHandler(c *gin.Context) {
 		handleError("PaymentsHandler", c, err, nil)
 		return
 	}
+
 	req.MerchantAccount = merchantAccount // required
-	pmType := req.PaymentMethod["type"].(string)
+	pmType := getPaymentType(req.PaymentMethod)
 	req.Amount = checkout.Amount{
 		Currency: findCurrency(pmType),
 		Value:    1000, // value is 10€ in minor units
@@ -57,9 +54,9 @@ func PaymentsHandler(c *gin.Context) {
 	orderRef := uuid.Must(uuid.NewRandom())
 	req.Reference = orderRef.String() // required
 	req.Channel = "Web"               // required
-	req.AdditionalData = map[string]interface{}{
+	req.AdditionalData = map[string]string{
 		// required for 3ds2 native flow
-		"allow3DS2": true,
+		"allow3DS2": "true",
 	}
 	req.Origin = "http://localhost:3000" // required for 3ds2 native flow
 	req.ShopperIP = c.ClientIP()         // required by some issuers for 3ds2
@@ -102,17 +99,7 @@ func PaymentsHandler(c *gin.Context) {
 		handleError("PaymentsHandler", c, err, httpRes)
 		return
 	}
-	if res.Action != nil && res.Action.PaymentData != "" {
-		log.Printf("Setting payment data cache for %s\n", orderRef)
-		paymentDataStore[orderRef.String()] = res.Action.PaymentData
-		c.JSON(http.StatusOK, res)
-	} else {
-		c.JSON(http.StatusOK, map[string]string{
-			"pspReference":  res.PspReference,
-			"resultCode":    res.ResultCode.String(),
-			"refusalReason": res.RefusalReason,
-		})
-	}
+	c.JSON(http.StatusOK, res)
 	return
 }
 
@@ -127,61 +114,32 @@ func PaymentDetailsHandler(c *gin.Context) {
 	}
 	log.Printf("Request for %s API::\n%+v\n", "PaymentDetails", req)
 	res, httpRes, err := client.Checkout.PaymentsDetails(&req)
+	log.Printf("Response for %s API::\n%+v\n", "PaymentDetails", res)
 	log.Printf("HTTP Response for %s API::\n%+v\n", "PaymentDetails", httpRes)
 	if err != nil {
 		handleError("PaymentDetailsHandler", c, err, httpRes)
 		return
 	}
-	if res.Action != nil {
-		c.JSON(http.StatusOK, res)
-	} else {
-		c.JSON(http.StatusOK, map[string]string{
-			"pspReference":  res.PspReference,
-			"resultCode":    res.ResultCode.String(),
-			"refusalReason": res.RefusalReason,
-		})
-	}
-	return
-}
 
-type Redirect struct {
-	MD             string
-	PaRes          string
-	Payload        string `form:"payload"`
-	RedirectResult string `form:"redirectResult"`
+	c.JSON(http.StatusOK, res)
+
+	return
 }
 
 // RedirectHandler handles POST and GET redirects from Adyen API
 func RedirectHandler(c *gin.Context) {
-	var redirect Redirect
 	log.Println("Redirect received")
+	var details checkout.PaymentCompletionDetails
 
-	orderRef := c.Query("orderRef")
-	paymentData := paymentDataStore[orderRef]
-	log.Printf("cached paymentData for %s: %s", orderRef, paymentData)
-
-	if err := c.ShouldBind(&redirect); err != nil {
+	if err := c.ShouldBind(&details); err != nil {
 		handleError("RedirectHandler", c, err, nil)
 		return
 	}
 
-	var details map[string]interface{}
-	if redirect.Payload != "" {
-		details = map[string]interface{}{
-			"payload": redirect.Payload,
-		}
-	} else if redirect.RedirectResult != "" {
-		details = map[string]interface{}{
-			"redirectResult": redirect.RedirectResult,
-		}
-	} else {
-		details = map[string]interface{}{
-			"MD":    redirect.MD,
-			"PaRes": redirect.PaRes,
-		}
-	}
+	details.RedirectResult = c.Query("redirectResult")
+	details.Payload = c.Query("payload")
 
-	req := checkout.DetailsRequest{Details: details, PaymentData: paymentData}
+	req := checkout.DetailsRequest{Details: details}
 
 	log.Printf("Request for %s API::\n%+v\n", "PaymentDetails", req)
 	res, httpRes, err := client.Checkout.PaymentsDetails(&req)
@@ -195,7 +153,7 @@ func RedirectHandler(c *gin.Context) {
 	if res.PspReference != "" {
 		var redirectURL string
 		// Conditionally handle different result codes for the shopper
-		switch res.ResultCode {
+		switch *res.ResultCode {
 		case common.Authorised:
 			redirectURL = "/result/success"
 			break
@@ -242,6 +200,21 @@ func findCurrency(typ string) string {
 		return "BRL"
 	default:
 		return "EUR"
+	}
+	return ""
+}
+
+func getPaymentType(pm interface{}) string {
+	switch v := pm.(type) {
+	case checkout.CardDetails:
+	case checkout.IdealDetails:
+	case checkout.DotpayDetails:
+	case checkout.GiropayDetails:
+	case checkout.AchDetails:
+	case checkout.KlarnaDetails:
+		return v.Type
+	case map[string]interface{}:
+		return v["type"].(string)
 	}
 	return ""
 }
