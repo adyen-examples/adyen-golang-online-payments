@@ -210,7 +210,8 @@ func getPaymentType(pm interface{}) string {
 	case checkout.IdealDetails:
 	case checkout.DotpayDetails:
 	case checkout.GiropayDetails:
-	case checkout.AchDetails:
+	case *checkout.AchDetails:
+    return v.Type
 	case checkout.KlarnaDetails:
 		return v.Type
 	case map[string]interface{}:
