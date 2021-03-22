@@ -19,11 +19,11 @@ func Init() {
 	godotenv.Load("./.env")
 
 	client = adyen.NewClient(&common.Config{
-		ApiKey:      os.Getenv("ADYEN_API_KEY"),
+		ApiKey:      os.Getenv("API_KEY"),
 		Environment: common.TestEnv,
 	})
 
-	merchantAccount = os.Getenv("ADYEN_MERCHANT")
+	merchantAccount = os.Getenv("MERCHANT_ACCOUNT")
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()

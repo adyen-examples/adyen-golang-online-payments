@@ -206,12 +206,17 @@ func findCurrency(typ string) string {
 
 func getPaymentType(pm interface{}) string {
 	switch v := pm.(type) {
-	case checkout.CardDetails:
-	case checkout.IdealDetails:
-	case checkout.DotpayDetails:
-	case checkout.GiropayDetails:
-	case checkout.AchDetails:
-	case checkout.KlarnaDetails:
+	case *checkout.CardDetails:
+		return v.Type
+	case *checkout.IdealDetails:
+		return v.Type
+	case *checkout.DotpayDetails:
+		return v.Type
+	case *checkout.GiropayDetails:
+		return v.Type
+	case *checkout.AchDetails:
+		return v.Type
+	case *checkout.KlarnaDetails:
 		return v.Type
 	case map[string]interface{}:
 		return v["type"].(string)
