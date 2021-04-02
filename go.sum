@@ -1,12 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/adyen/adyen-go-api-library v1.0.1 h1:yEnKwFC8m5+zYSO76TASc9t8V8PaDbxlhlIDkxz3kLk=
-github.com/adyen/adyen-go-api-library v1.0.1/go.mod h1:qS+/AZA/hcaoDqGjWGQljgLWZmIQPkgApQd7HUHwtHM=
-github.com/adyen/adyen-go-api-library/v5 v5.0.0 h1:LaVrvFtc09R15oR69244LameWFNKjTtAtEqhGlblZhA=
-github.com/adyen/adyen-go-api-library/v5 v5.0.0/go.mod h1:a5fiaw9HVGfAdbQX+anGio9Z6ljuyc/iCkly2MSksy4=
-github.com/adyen/adyen-go-api-library/v5 v5.0.1 h1:Kz4/oItBK3yzWhFfMFbh9HdMjHu2ycpi3HEMxzSrn1c=
-github.com/adyen/adyen-go-api-library/v5 v5.0.1/go.mod h1:a5fiaw9HVGfAdbQX+anGio9Z6ljuyc/iCkly2MSksy4=
+github.com/adyen/adyen-go-api-library/v5 v5.0.2 h1:Z0nwEzz8AwmjyXWrMTtKHAyhP1xRBLdp/FwoqbwtuoY=
+github.com/adyen/adyen-go-api-library/v5 v5.0.2/go.mod h1:a5fiaw9HVGfAdbQX+anGio9Z6ljuyc/iCkly2MSksy4=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -78,7 +74,6 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/ugorji/go v1.1.7 h1:/68gy2h+1mWMrwZFeD1kQialdSzAb432dtpeJ42ovdo=

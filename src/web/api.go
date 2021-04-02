@@ -61,8 +61,8 @@ func PaymentsHandler(c *gin.Context) {
 	req.Origin = "http://localhost:3000" // required for 3ds2 native flow
 	req.ShopperIP = c.ClientIP()         // required by some issuers for 3ds2
 
-	// we pass the orderRef in return URL to get paymentData during redirects
-	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef) // required for 3ds2 redirect flow
+	// required for 3ds2 redirect flow
+	req.ReturnUrl = fmt.Sprintf("http://localhost:3000/api/handleShopperRedirect?orderRef=%s", orderRef)
 	// Required for Klarna:
 	if strings.Contains(pmType, "klarna") {
 		req.CountryCode = "DE"
