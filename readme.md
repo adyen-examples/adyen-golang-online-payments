@@ -69,7 +69,8 @@ Alternatively you can build and run a Docker image
 docker build -t adyen/golang-online-payments .
 
 # Run image passing env variables
-docker run -e "PORT=8080" -e "ADYEN_API_KEY=abc123" -e "ADYEN_MERCHANT_ACCOUNT=TestAccount123" -e "ADYEN_CLIENT_KEY=tyu123" --rm --name adyen-golang-online-payments -p 8080:8080 adyen/golang-online-payments
+docker run -e "PORT=8080" -e "ADYEN_API_KEY=abc123" -e "ADYEN_MERCHANT_ACCOUNT=TestAccount123" 
+ -e "ADYEN_CLIENT_KEY=tyu123" --rm --name adyen-golang-online-payments -p 8080:8080 adyen/golang-online-payments
 ```
 
 
