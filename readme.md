@@ -60,6 +60,20 @@ go run -v .
 
 To try out integrations with test card numbers and payment method details, see [Test card numbers](https://docs.adyen.com/development-resources/test-cards/test-card-numbers).
 
+## Run in Docker
+
+Alternatively you can build and run a Docker image
+
+```
+# 
+docker build -t adyen/golang-online-payments .
+
+# Run image passing env variables
+docker run -e "PORT=8080" -e "ADYEN_API_KEY=abc123" -e "ADYEN_MERCHANT_ACCOUNT=TestAccount123" -e "ADYEN_CLIENT_KEY=tyu123" --rm --name adyen-golang-online-payments -p 8080:8080 adyen/golang-online-payments
+```
+
+
+
 ## Contributing
 
 We commit all our new features directly into our GitHub repository. Feel free to request or suggest new features or code changes yourself as well!
