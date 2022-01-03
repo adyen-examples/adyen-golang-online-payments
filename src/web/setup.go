@@ -1,6 +1,7 @@
 package web
 
 import (
+	"log"
 	"os"
 
 	"github.com/adyen/adyen-go-api-library/v5/src/adyen"
@@ -12,18 +13,22 @@ import (
 
 var (
 	client          *adyen.APIClient
+	port            string
 	merchantAccount string
+	clientKey       string
 )
 
 func Init() {
 	godotenv.Load("./.env")
 
 	client = adyen.NewClient(&common.Config{
-		ApiKey:      os.Getenv("API_KEY"),
+		ApiKey:      os.Getenv("ADYEN_API_KEY"),
 		Environment: common.TestEnv,
 	})
 
-	merchantAccount = os.Getenv("MERCHANT_ACCOUNT")
+	port = os.Getenv("PORT")
+	merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
+	clientKey = os.Getenv("ADYEN_CLIENT_KEY")
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -49,5 +54,6 @@ func Init() {
 	api.POST("/handleShopperRedirect", RedirectHandler)
 
 	// Start and run the server
-	router.Run(":3000")
+	log.Printf("Running on http://localhost:" + port)
+	router.Run(":" + port)
 }
