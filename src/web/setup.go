@@ -27,6 +27,11 @@ func Init() {
 	})
 
 	port = os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080" // default when missing
+	}
+
 	merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
 	clientKey = os.Getenv("ADYEN_CLIENT_KEY")
 
