@@ -65,7 +65,7 @@ To try out integrations with test card numbers and payment method details, see [
 Alternatively you can build and run a Docker image
 
 ```
-# 
+# Build image locally
 docker build -t adyen/golang-online-payments .
 
 # Run image passing env variables
