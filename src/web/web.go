@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +44,7 @@ func CheckoutHandler(c *gin.Context) {
 	setPageAndData(c, gin.H{
 		"page":      "payment",
 		"type":      c.Param("type"),
-		"clientKey": os.Getenv("CLIENT_KEY"),
+		"clientKey": clientKey,
 	})
 }
 
