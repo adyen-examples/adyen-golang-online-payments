@@ -44,7 +44,7 @@ async function initCheckout() {
 
 function filterUnimplemented(pm) {
   pm.paymentMethods = pm.paymentMethods.filter((it) =>
-    ["ach", "scheme", "dotpay", "giropay", "ideal", "directEbanking", "klarna_paynow", "klarna", "klarna_account"].includes(it.type)
+    ["ach", "scheme", "dotpay", "giropay", "ideal", "directEbanking", "klarna_paynow", "klarna", "klarna_account", "sepadirectdebit"].includes(it.type)
   );
   return pm;
 }
