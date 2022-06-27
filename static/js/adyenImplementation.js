@@ -34,8 +34,9 @@ async function initCheckout() {
       },
     };
 
-    const checkout = new AdyenCheckout(configuration);
+    const checkout = await AdyenCheckout(configuration);
     checkout.create(type).mount(document.getElementById(type));
+    
   } catch (error) {
     console.error(error);
     alert("Error occurred. Look at console for details");
