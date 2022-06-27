@@ -37,6 +37,10 @@ func PaymentMethodsHandler(c *gin.Context) {
 
 // PaymentsHandler makes payment using Adyen API
 func PaymentsHandler(c *gin.Context) {
+	scheme := "http"
+	if c.Request.TLS != nil {
+		scheme = "https"
+	}
 	c.Header("Content-Type", "application/json")
 	var req checkout.PaymentRequest
 
@@ -58,11 +62,11 @@ func PaymentsHandler(c *gin.Context) {
 		// required for 3ds2 native flow
 		"allow3DS2": "true",
 	}
-	req.Origin = "http://localhost:" + port // required for 3ds2 native flow
+	req.Origin = scheme + "://" + c.Request.Host // required for 3ds2 native flow
 	req.ShopperIP = c.ClientIP()         // required by some issuers for 3ds2
 
 	// required for 3ds2 redirect flow
-	req.ReturnUrl = fmt.Sprintf("http://localhost:" + port + "/api/handleShopperRedirect?orderRef=%s", orderRef)
+	req.ReturnUrl = fmt.Sprintf(scheme + "://" + c.Request.Host + "/api/handleShopperRedirect?orderRef=%s", orderRef) 
 	// Required for Klarna:
 	if strings.Contains(pmType, "klarna") {
 		req.CountryCode = "DE"
