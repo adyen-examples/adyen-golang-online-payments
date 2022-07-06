@@ -3,7 +3,7 @@ module golang-online-payments
 go 1.14
 
 require (
-	github.com/adyen/adyen-go-api-library/v5 v5.1.0
+	github.com/adyen/adyen-go-api-library/v6 v6.0.0-20220705095509-7ba1b8ecdfc8 // indirect
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.8.1
 	github.com/google/uuid v1.3.0
