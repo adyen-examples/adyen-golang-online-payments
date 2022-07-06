@@ -53,9 +53,6 @@ func Init() {
 
 	api.POST("/sessions", SessionsHandler)
 
-	api.POST("/getPaymentMethods", PaymentMethodsHandler)
-	api.POST("/initiatePayment", PaymentsHandler)
-	api.POST("/submitAdditionalDetails", PaymentDetailsHandler)
 	// handle redirects
 	api.GET("/handleShopperRedirect", RedirectHandler)
 	api.POST("/handleShopperRedirect", RedirectHandler)
