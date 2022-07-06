@@ -7,12 +7,44 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/adyen/adyen-go-api-library/v5/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v5/src/common"
+	"github.com/adyen/adyen-go-api-library/v6/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v6/src/common"
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
+
+// SessionsHandler r
+func SessionsHandler(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	var req checkout.CreateCheckoutSessionRequest
+
+	orderRef := uuid.Must(uuid.NewRandom())
+	req.Reference = orderRef.String() // required
+	req.Amount = checkout.Amount{
+		Currency: "EUR",
+		Value:    1000, // value is 10€ in minor units
+	}
+	req.CountryCode = "NL"
+	req.MerchantAccount = merchantAccount // required
+	req.ShopperIP = c.ClientIP() // optional but recommended (see https://docs.adyen.com/api-explorer/#/CheckoutService/v69/post/sessions__reqParam_shopperIP)
+
+	// ReturnUrl required for 3ds2 redirect flow
+	scheme := "http"
+	if c.Request.TLS != nil {
+		scheme = "https"
+	}
+	req.ReturnUrl = fmt.Sprintf(scheme+"://"+c.Request.Host+"/api/handleShopperRedirect?orderRef=%s", orderRef)
+
+	log.Printf("Request for %s API::\n%+v\n", "SessionsHandler", req)
+	res, httpRes, err := client.Checkout.Sessions(&req)
+	if err != nil {
+		handleError("SessionHandler", c, err, httpRes)
+		return
+	}
+	c.JSON(http.StatusOK, res)
+	return
+}
 
 // PaymentMethodsHandler retrieves a list of available payment methods from Adyen API
 func PaymentMethodsHandler(c *gin.Context) {

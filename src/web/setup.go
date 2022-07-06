@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/adyen/adyen-go-api-library/v5/src/adyen"
-	"github.com/adyen/adyen-go-api-library/v5/src/common"
+	"github.com/adyen/adyen-go-api-library/v6/src/adyen"
+	"github.com/adyen/adyen-go-api-library/v6/src/common"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -50,6 +50,8 @@ func Init() {
 
 	// Setup route group and routes for the API
 	api := router.Group("/api")
+
+	api.POST("/sessions", SessionsHandler)
 
 	api.POST("/getPaymentMethods", PaymentMethodsHandler)
 	api.POST("/initiatePayment", PaymentsHandler)
