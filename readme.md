@@ -45,14 +45,13 @@ Golang 1.14+
 git clone https://github.com/adyen-examples/adyen-golang-online-payments.git
 ```
 
-## Usage
-
-1. Create a `./.env` file with all required configuration
+2. Create a `./.env` file with all required configuration
 
    - PORT (default 8080)
    - [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key)
    - [Client Key](https://docs.adyen.com/user-management/client-side-authentication)
    - [Merchant Account](https://docs.adyen.com/account/account-structure)
+   - [HMAC Key](https://docs.adyen.com/development-resources/webhooks/verify-hmac-signatures)
 
 Remember to include `http://localhost:8080` in the list of Allowed Origins
 
@@ -61,15 +60,18 @@ PORT=8080
 ADYEN_API_KEY="your_API_key_here"
 ADYEN_MERCHANT_ACCOUNT="your_merchant_account_here"
 ADYEN_CLIENT_KEY="your_client_key_here"
+ADYEN_HMAC_KEY="your_hmac_key_here"
 ```
 
-2. Start the server:
+## Usage
+
+1. Start the server:
 
 ```
 go run -v .
 ```
 
-3. Visit [http://localhost:8080/](http://localhost:8080/) to select an integration type.
+2. Visit [http://localhost:8080/](http://localhost:8080/) and select an integration type.
 
 To try out integrations with test card numbers and payment method details, see [Test card numbers](https://docs.adyen.com/development-resources/test-cards/test-card-numbers).
 

@@ -16,6 +16,7 @@ var (
 	port            string
 	merchantAccount string
 	clientKey       string
+	hmacKey         string
 )
 
 func Init() {
@@ -34,6 +35,7 @@ func Init() {
 
 	merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
 	clientKey = os.Getenv("ADYEN_CLIENT_KEY")
+	hmacKey = os.Getenv("ADYEN_HMAC_KEY")
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -52,6 +54,7 @@ func Init() {
 	api := router.Group("/api")
 
 	api.POST("/sessions", SessionsHandler)
+	api.POST("/webhooks/notifications", WebhookHandler)
 
 	// handle redirects
 	api.GET("/handleShopperRedirect", RedirectHandler)
