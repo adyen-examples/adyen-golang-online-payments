@@ -49,6 +49,7 @@ func SessionsHandler(c *gin.Context) {
 
 // WebhookHandler: process incoming webhook notifications (https://docs.adyen.com/development-resources/webhooks)
 func WebhookHandler(c *gin.Context) {
+	log.Println("Webhook received")
 
 	// get webhook request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
