@@ -34,6 +34,7 @@ func Init() {
 
 	merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
 	clientKey = os.Getenv("ADYEN_CLIENT_KEY")
+	hmacKey = os.Getenv("ADYEN_HMAC_KEY")
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
