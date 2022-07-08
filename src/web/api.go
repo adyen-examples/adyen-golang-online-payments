@@ -70,6 +70,7 @@ func WebhookHandler(c *gin.Context) {
 				" EventCode: " + notification.EventCode)
 		} else {
 			// HMAC signature is invalid: reject notificaiton
+			log.Panicln("HMAC signature is invalid")
 			ret = false
 			break
 		}
