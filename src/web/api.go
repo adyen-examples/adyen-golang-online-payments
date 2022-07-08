@@ -2,15 +2,17 @@ package web
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/adyen/adyen-go-api-library/v6/src/checkout"
 	"github.com/adyen/adyen-go-api-library/v6/src/common"
-	"github.com/google/uuid"
-
+	"github.com/adyen/adyen-go-api-library/v6/src/hmacvalidator"
+	"github.com/adyen/adyen-go-api-library/v6/src/notification"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // SessionsHandler r
@@ -26,7 +28,7 @@ func SessionsHandler(c *gin.Context) {
 	}
 	req.CountryCode = "NL"
 	req.MerchantAccount = merchantAccount // required
-	req.ShopperIP = c.ClientIP() // optional but recommended (see https://docs.adyen.com/api-explorer/#/CheckoutService/v69/post/sessions__reqParam_shopperIP)
+	req.ShopperIP = c.ClientIP()          // optional but recommended (see https://docs.adyen.com/api-explorer/#/CheckoutService/v69/post/sessions__reqParam_shopperIP)
 
 	// ReturnUrl required for 3ds2 redirect flow
 	scheme := "http"
@@ -45,6 +47,41 @@ func SessionsHandler(c *gin.Context) {
 	return
 }
 
+// WebhookHandler: process incoming webhook notifications (https://docs.adyen.com/development-resources/webhooks)
+func WebhookHandler(c *gin.Context) {
+
+	// get webhook request body
+	body, _ := ioutil.ReadAll(c.Request.Body)
+
+	var notificationService notification.NotificationService
+	notificationRequest, err := notificationService.HandleNotificationRequest(string(body))
+
+	if err != nil {
+		handleError("WebhookHandler", c, err, nil)
+		return
+	}
+
+	// process notificationRequestItems
+	ret := true
+	for _, notification := range notificationRequest.GetNotificationItems() {
+		if hmacvalidator.ValidateHmac(*notification, hmacKey) {
+			// HMAC signature is valid: process notification
+			log.Println("Received webhook PspReference: " + notification.PspReference +
+				" EventCode: " + notification.EventCode)
+		} else {
+			// HMAC signature is invalid: reject notificaiton
+			ret = false
+			break
+		}
+	}
+
+	if ret {
+		c.String(200, "[accepted]")
+	} else {
+		c.String(401, "Invalid hmac signature")
+	}
+
+}
 
 // RedirectHandler handles POST and GET redirects from Adyen API
 func RedirectHandler(c *gin.Context) {

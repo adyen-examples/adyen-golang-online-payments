@@ -16,6 +16,7 @@ var (
 	port            string
 	merchantAccount string
 	clientKey       string
+	hmacKey         string
 )
 
 func Init() {
@@ -53,6 +54,7 @@ func Init() {
 	api := router.Group("/api")
 
 	api.POST("/sessions", SessionsHandler)
+	api.POST("/webhooks/notifications", WebhookHandler)
 
 	// handle redirects
 	api.GET("/handleShopperRedirect", RedirectHandler)
