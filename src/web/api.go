@@ -24,7 +24,7 @@ func SessionsHandler(c *gin.Context) {
 	req.Reference = orderRef.String() // required
 	req.Amount = checkout.Amount{
 		Currency: "EUR",
-		Value:    1000, // value is 10€ in minor units
+		Value:    10000, // value is 100€ in minor units
 	}
 	req.CountryCode = "NL"
 	req.MerchantAccount = merchantAccount // required
@@ -36,6 +36,12 @@ func SessionsHandler(c *gin.Context) {
 		scheme = "https"
 	}
 	req.ReturnUrl = fmt.Sprintf(scheme+"://"+c.Request.Host+"/api/handleShopperRedirect?orderRef=%s", orderRef)
+
+    // set lineItems required for some payment methods (ie Klarna)
+	req.LineItems = &[]checkout.LineItem{
+		{Quantity: 1, AmountIncludingTax: 5000, Description: "Sunglasses"}, 
+		{Quantity: 1, AmountIncludingTax: 5000, Description: "Headphones"},
+	}
 
 	log.Printf("Request for %s API::\n%+v\n", "SessionsHandler", req)
 	res, httpRes, err := client.Checkout.Sessions(&req)
