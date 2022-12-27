@@ -1,6 +1,6 @@
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
-github.com/adyen/adyen-go-api-library/v6 v6.0.0 h1:j+G7W2Wai3+wfM5JKZkwCmde2T7W70zEHmVHPTIqO2M=
-github.com/adyen/adyen-go-api-library/v6 v6.0.0/go.mod h1:BXQ9Gj9POtdQmzUShH3q4rjFan0DOHeOcFqegidCiSw=
+github.com/adyen/adyen-go-api-library/v6 v6.0.1 h1:q5rCAACWdw9w1DyfwilPls/aNoCVDQGSE1o9Ry/ZWIA=
+github.com/adyen/adyen-go-api-library/v6 v6.0.1/go.mod h1:BXQ9Gj9POtdQmzUShH3q4rjFan0DOHeOcFqegidCiSw=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
