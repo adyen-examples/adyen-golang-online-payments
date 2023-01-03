@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/adyen/adyen-go-api-library/v6 v6.0.1
-	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
+	github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2
 	github.com/gin-gonic/gin v1.8.2
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
