@@ -37,9 +37,9 @@ func SessionsHandler(c *gin.Context) {
 	}
 	req.ReturnUrl = fmt.Sprintf(scheme+"://"+c.Request.Host+"/api/handleShopperRedirect?orderRef=%s", orderRef)
 
-    // set lineItems required for some payment methods (ie Klarna)
+	// set lineItems required for some payment methods (ie Klarna)
 	req.LineItems = &[]checkout.LineItem{
-		{Quantity: 1, AmountIncludingTax: 5000, Description: "Sunglasses"}, 
+		{Quantity: 1, AmountIncludingTax: 5000, Description: "Sunglasses"},
 		{Quantity: 1, AmountIncludingTax: 5000, Description: "Headphones"},
 	}
 
@@ -68,19 +68,23 @@ func WebhookHandler(c *gin.Context) {
 		return
 	}
 
-	// process notificationRequestItems
-	ret := true
-	for _, notification := range notificationRequest.GetNotificationItems() {
-		if hmacvalidator.ValidateHmac(*notification, hmacKey) {
-			// HMAC signature is valid: process notification
-			log.Println("Received webhook PspReference: " + notification.PspReference +
-				" EventCode: " + notification.EventCode)
-		} else {
-			// HMAC signature is invalid: reject notificaiton
-			log.Println("HMAC signature is invalid")
-			ret = false
-			break
-		}
+	var ret bool
+
+	// fetch first (and only) NotificationRequestItem
+	notification := notificationRequest.GetNotificationItems()[0]
+
+	if hmacvalidator.ValidateHmac(*notification, hmacKey) {
+		log.Println("Received webhook PspReference: " + notification.PspReference +
+			" EventCode: " + notification.EventCode)
+
+		// consume event asynchronously
+		consumeEvent(*notification)
+
+		ret = true
+	} else {
+		// HMAC signature is invalid: do not send [accepted] response
+		log.Println("HMAC signature is invalid")
+		ret = false
 	}
 
 	if ret {
@@ -88,6 +92,15 @@ func WebhookHandler(c *gin.Context) {
 	} else {
 		c.String(401, "Invalid hmac signature")
 	}
+
+}
+
+// process payload asynchronously
+func consumeEvent(item notification.NotificationRequestItem) {
+
+	log.Println("Processing eventCode " + item.EventCode)
+
+	// add item to DB, queue or run in a different thread
 
 }
 
