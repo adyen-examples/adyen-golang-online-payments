@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/adyen/adyen-go-api-library/v6/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v6/src/common"
-	"github.com/adyen/adyen-go-api-library/v6/src/hmacvalidator"
-	"github.com/adyen/adyen-go-api-library/v6/src/webhook"
+	"github.com/adyen/adyen-go-api-library/v7/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v7/src/common"
+	"github.com/adyen/adyen-go-api-library/v7/src/hmacvalidator"
+	"github.com/adyen/adyen-go-api-library/v7/src/webhook"
 )
 
 // SessionsHandler r
@@ -50,7 +50,8 @@ func SessionsHandler(c *gin.Context) {
 	req := service.PaymentsApi.SessionsConfig(context.Background()).CreateCheckoutSessionRequest(body)
 	log.Printf("Request for %s API::\n%+v\n", "SessionsHandler", req)
 	res, httpRes, err := service.PaymentsApi.Sessions(req)
-	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res)
+	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.SessionData)
+	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.Id)
 	if err != nil {
 		handleError("SessionHandler", c, err, httpRes)
 		return
@@ -66,8 +67,7 @@ func WebhookHandler(c *gin.Context) {
 	// get webhook request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
 
-	var notificationService webhook.NotificationService
-	notificationRequest, err := notificationService.HandleNotificationRequest(string(body))
+	notificationRequest, err := webhook.HandleRequest(string(body))
 
 	if err != nil {
 		handleError("WebhookHandler", c, err, nil)
@@ -133,27 +133,30 @@ func RedirectHandler(c *gin.Context) {
 	}
 	log.Printf("Response for %s API::\n%+v\n", "PaymentDetails", res)
 
-	if !common.IsNil(res.PspReference) {
+	if !common.IsNil(*res.PspReference) {
 		var redirectURL string
 		// Conditionally handle different result codes for the shopper
-		switch res.ResultCode {
-		case common.PtrString("Authorised"): //common.Authorised:
+		switch *res.ResultCode {
+		case "Authorised": //common.Authorised:
 			redirectURL = "/result/success"
 			break
-		case common.PtrString("Pending"): //common.Pending:
-		case common.PtrString("Received"): //common.Received:
+		case "Pending": //common.Pending:
+		case "Received": //common.Received:
 			redirectURL = "/result/pending"
 			break
-		case common.PtrString("Refused"): //common.Refused:
+		case "Refused": //common.Refused:
 			redirectURL = "/result/failed"
 			break
 		default:
 			{
-				reason := res.RefusalReason
+				reason := *res.RefusalReason
+				log.Printf(reason)
 				if !common.IsNil(reason) {
-					reason = res.ResultCode
+					reason = *res.ResultCode
 				}
-				redirectURL = fmt.Sprintf("/result/error?reason=%s", url.QueryEscape(*reason))
+				log.Printf(reason)
+				log.Printf("res1" + *res.ResultCode)
+				redirectURL = fmt.Sprintf("/result/error?reason=%s", url.QueryEscape(reason))
 				break
 			}
 		}
