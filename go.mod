@@ -3,7 +3,7 @@ module golang-online-payments
 go 1.19
 
 require (
-	github.com/adyen/adyen-go-api-library/v6 v6.0.1
+	github.com/adyen/adyen-go-api-library/v7 v7.0.1
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
@@ -39,4 +39,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/adyen/adyen-go-api-library/v6 => ../adyen-go-api-library
+replace github.com/adyen/adyen-go-api-library/v7 => ../adyen-go-api-library
