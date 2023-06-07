@@ -1,66 +1,73 @@
 package web
 
 import (
-  "log"
-  "os"
+	"log"
+	"os"
 
-  "github.com/adyen/adyen-go-api-library/v7/src/adyen"
-  "github.com/adyen/adyen-go-api-library/v7/src/common"
-  "github.com/gin-gonic/contrib/static"
-  "github.com/gin-gonic/gin"
-  "github.com/joho/godotenv"
+	"github.com/adyen/adyen-go-api-library/v7/src/adyen"
+	"github.com/adyen/adyen-go-api-library/v7/src/common"
+	"github.com/gin-gonic/contrib/static"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 var (
-  client          *adyen.APIClient
-  port            string
-  merchantAccount string
-  clientKey       string
-  hmacKey         string
+	client          *adyen.APIClient
+	bankClient      *adyen.APIClient
+	port            string
+	merchantAccount string
+	clientKey       string
+	hmacKey         string
 )
 
 func Init() {
-  godotenv.Load("./.env")
+	godotenv.Load("./.env")
 
-  client = adyen.NewClient(&common.Config{
-    ApiKey:      os.Getenv("ADYEN_API_KEY"),
-    Environment: common.TestEnv,
-  })
+	client = adyen.NewClient(&common.Config{
+		ApiKey:      os.Getenv("ADYEN_API_KEY"),
+		Environment: common.TestEnv,
+	})
 
-  port = os.Getenv("PORT")
+	bankClient = adyen.NewClient(&common.Config{
+		ApiKey:      os.Getenv("ADYEN_BANK_API_KEY"),
+		Environment: common.TestEnv,
+	})
 
-  if port == "" {
-    port = "8080" // default when missing
-  }
+	port = os.Getenv("PORT")
 
-  merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
-  clientKey = os.Getenv("ADYEN_CLIENT_KEY")
-  hmacKey = os.Getenv("ADYEN_HMAC_KEY")
+	if port == "" {
+		port = "8080" // default when missing
+	}
 
-  // Set the router as the default one shipped with Gin
-  router := gin.Default()
-  // Serve HTML templates
-  router.LoadHTMLGlob("./templates/*")
-  // Serve frontend static files
-  router.Use(static.Serve("/static", static.LocalFile("./static", true)))
+	merchantAccount = os.Getenv("ADYEN_MERCHANT_ACCOUNT")
+	clientKey = os.Getenv("ADYEN_CLIENT_KEY")
+	hmacKey = os.Getenv("ADYEN_HMAC_KEY")
 
-  // setup client side templates
-  router.GET("/", IndexHandler)
-  router.GET("/preview/:type", PreviewHandler)
-  router.GET("/checkout/:type", CheckoutHandler)
-  router.GET("/result/:status", ResultHandler)
+	// Set the router as the default one shipped with Gin
+	router := gin.Default()
+	// Serve HTML templates
+	router.LoadHTMLGlob("./templates/*")
+	// Serve frontend static files
+	router.Use(static.Serve("/static", static.LocalFile("./static", true)))
 
-  // Setup route group and routes for the API
-  api := router.Group("/api")
+	// setup client side templates
+	router.GET("/", IndexHandler)
+	router.GET("/preview/:type", PreviewHandler)
+	router.GET("/checkout/:type", CheckoutHandler)
+	router.GET("/result/:status", ResultHandler)
 
-  api.POST("/sessions", SessionsHandler)
-  api.POST("/webhooks/notifications", WebhookHandler)
+	// Setup route group and routes for the API
+	api := router.Group("/api")
 
-  // handle redirects
-  api.GET("/handleShopperRedirect", RedirectHandler)
-  api.POST("/handleShopperRedirect", RedirectHandler)
+	api.POST("/sessions", SessionsHandler)
+	api.POST("/webhooks/notifications", WebhookHandler)
 
-  // Start and run the server
-  log.Printf("Running on http://localhost:" + port)
-  router.Run(":" + port)
+	// handle redirects
+	api.GET("/handleShopperRedirect", RedirectHandler)
+	api.POST("/handleShopperRedirect", RedirectHandler)
+
+	// Start and run the server
+	log.Printf("Running on http://localhost:" + port)
+	router.Run(":" + port)
+
 }
