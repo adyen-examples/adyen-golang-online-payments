@@ -66,6 +66,8 @@ func Init() {
 	api.GET("/handleShopperRedirect", RedirectHandler)
 	api.POST("/handleShopperRedirect", RedirectHandler)
 
+	CreateCard()
+
 	// Start and run the server
 	log.Printf("Running on http://localhost:" + port)
 	router.Run(":" + port)
