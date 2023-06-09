@@ -47,9 +47,9 @@ func SessionsHandler(c *gin.Context) {
 			{Quantity: common.PtrInt64(1), AmountIncludingTax: common.PtrInt64(5000), Description: common.PtrString("Headphones")},
 		},
 	}
-	req := service.PaymentsApi.SessionsConfig(context.Background()).CreateCheckoutSessionRequest(body)
+	req := service.PaymentsApi.SessionsInput().CreateCheckoutSessionRequest(body)
 	log.Printf("Request for %s API::\n%+v\n", "SessionsHandler", req)
-	res, httpRes, err := service.PaymentsApi.Sessions(req)
+	res, httpRes, err := service.PaymentsApi.Sessions(context.Background(), req)
 	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.SessionData)
 	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.Id)
 	if err != nil {
@@ -116,7 +116,7 @@ func RedirectHandler(c *gin.Context) {
 
 	service := client.Checkout()
 
-	req := service.PaymentsApi.PaymentsDetailsConfig(context.Background())
+	req := service.PaymentsApi.PaymentsDetailsInput()
 	req = req.DetailsRequest(checkout.DetailsRequest{
 		PaymentData: common.PtrString("1234"),
 		Details: checkout.PaymentCompletionDetails{
@@ -125,7 +125,7 @@ func RedirectHandler(c *gin.Context) {
 		},
 	})
 	log.Printf("Request for %s API::\n%+v\n", "PaymentDetails", req)
-	res, httpRes, err := service.PaymentsApi.PaymentsDetails(req)
+	res, httpRes, err := service.PaymentsApi.PaymentsDetails(context.Background(), req)
 	log.Printf("HTTP Response for %s API::\n%+v\n", "PaymentDetails", httpRes)
 	if err != nil {
 		handleError("RedirectHandler", c, err, httpRes)

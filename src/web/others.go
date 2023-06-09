@@ -30,12 +30,12 @@ func PayWithGooglePay() {
 		PaymentMethod:   checkout.CheckoutPaymentMethod{GooglePayDetails: &paymentMethod},
 	}
 
-	req := paymentsService.PaymentsConfig(context.Background()).PaymentRequest(body)
+	req := paymentsService.PaymentsInput().PaymentRequest(body)
 	// but ideally:
 	// req := paymentsService.makePaymentRequest(context.Background()).PaymentRequest(body)
 
 	log.Printf("Request for %s API::\n%+v\n", "Payments", req)
-	res, _, err := paymentsService.Payments(req)
+	res, _, err := paymentsService.Payments(context.Background(), req)
 	log.Printf("Response for %s API::\n%+v\n", "Payments", res)
 
 	if err != nil {
