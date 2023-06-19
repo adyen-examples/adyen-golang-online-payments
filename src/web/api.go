@@ -1,16 +1,17 @@
 package web
 
 import (
+	"context"
 	"fmt"
+	"github.com/adyen/adyen-go-api-library/v7/src/webhook"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 
-	"github.com/adyen/adyen-go-api-library/v6/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v6/src/common"
-	"github.com/adyen/adyen-go-api-library/v6/src/hmacvalidator"
-	"github.com/adyen/adyen-go-api-library/v6/src/notification"
+	"github.com/adyen/adyen-go-api-library/v7/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v7/src/common"
+	"github.com/adyen/adyen-go-api-library/v7/src/hmacvalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -18,39 +19,47 @@ import (
 // SessionsHandler r
 func SessionsHandler(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
-	var req checkout.CreateCheckoutSessionRequest
+
+	service := client.Checkout()
 
 	orderRef := uuid.Must(uuid.NewRandom())
-	req.Reference = orderRef.String() // required
-	req.Amount = checkout.Amount{
-		Currency: "EUR",
-		Value:    10000, // value is 100€ in minor units
-	}
-	req.CountryCode = "NL"
-	req.MerchantAccount = merchantAccount // required
-	req.ShopperIP = c.ClientIP()          // optional but recommended (see https://docs.adyen.com/api-explorer/#/CheckoutService/v69/post/sessions__reqParam_shopperIP)
 
 	// ReturnUrl required for 3ds2 redirect flow
 	scheme := "http"
 	if c.Request.TLS != nil {
 		scheme = "https"
 	}
-	req.ReturnUrl = fmt.Sprintf(scheme+"://"+c.Request.Host+"/api/handleShopperRedirect?orderRef=%s", orderRef)
 
-	// set lineItems required for some payment methods (ie Klarna)
-	req.LineItems = &[]checkout.LineItem{
-		{Quantity: 1, AmountIncludingTax: 5000, Description: "Sunglasses"},
-		{Quantity: 1, AmountIncludingTax: 5000, Description: "Headphones"},
+	body := checkout.CreateCheckoutSessionRequest{
+		Reference: orderRef.String(),
+		Amount: checkout.Amount{
+			Value:    10000, // value is 100€ in minor units
+			Currency: "EUR",
+		},
+		CountryCode:     common.PtrString("NL"),
+		MerchantAccount: merchantAccount,
+		Channel:         common.PtrString("Web"),
+		ReturnUrl:       fmt.Sprintf(scheme+"://"+c.Request.Host+"/api/handleShopperRedirect?orderRef=%s", orderRef),
+		ShopperIP:       common.PtrString(c.ClientIP()), // optional but recommended (see https://docs.adyen.com/api-explorer/#/CheckoutService/v69/post/sessions__reqParam_shopperIP)
+		// set lineItems required for some payment methods (ie Klarna)
+		LineItems: []checkout.LineItem{
+			{Quantity: common.PtrInt64(1), AmountIncludingTax: common.PtrInt64(5000), Description: common.PtrString("Sunglasses")},
+			{Quantity: common.PtrInt64(1), AmountIncludingTax: common.PtrInt64(5000), Description: common.PtrString("Headphones")},
+		},
 	}
 
+	req := service.PaymentsApi.SessionsInput().CreateCheckoutSessionRequest(body)
 	log.Printf("Request for %s API::\n%+v\n", "SessionsHandler", req)
-	res, httpRes, err := client.Checkout.Sessions(&req)
+	res, httpRes, err := service.PaymentsApi.Sessions(context.Background(), req)
+	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.SessionData)
+	log.Printf("Response for %s API::\n%+v\n", "SessionsHandler", res.Id)
 	if err != nil {
 		handleError("SessionHandler", c, err, httpRes)
 		return
 	}
 	c.JSON(http.StatusOK, res)
 	return
+
 }
 
 // WebhookHandler: process incoming webhook notifications (https://docs.adyen.com/development-resources/webhooks)
@@ -60,8 +69,7 @@ func WebhookHandler(c *gin.Context) {
 	// get webhook request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
 
-	var notificationService notification.NotificationService
-	notificationRequest, err := notificationService.HandleNotificationRequest(string(body))
+	notificationRequest, err := webhook.HandleRequest(string(body))
 
 	if err != nil {
 		handleError("WebhookHandler", c, err, nil)
@@ -96,7 +104,7 @@ func WebhookHandler(c *gin.Context) {
 }
 
 // process payload asynchronously
-func consumeEvent(item notification.NotificationRequestItem) {
+func consumeEvent(item webhook.NotificationRequestItem) {
 
 	log.Println("Processing eventCode " + item.EventCode)
 
@@ -107,20 +115,19 @@ func consumeEvent(item notification.NotificationRequestItem) {
 // RedirectHandler handles POST and GET redirects from Adyen API
 func RedirectHandler(c *gin.Context) {
 	log.Println("Redirect received")
-	var details checkout.PaymentCompletionDetails
 
-	if err := c.ShouldBind(&details); err != nil {
-		handleError("RedirectHandler", c, err, nil)
-		return
-	}
+	service := client.Checkout()
 
-	details.RedirectResult = c.Query("redirectResult")
-	details.Payload = c.Query("payload")
-
-	req := checkout.DetailsRequest{Details: details}
-
+	req := service.PaymentsApi.PaymentsDetailsInput()
+	req = req.DetailsRequest(checkout.DetailsRequest{
+		PaymentData: common.PtrString("1234"),
+		Details: checkout.PaymentCompletionDetails{
+			RedirectResult: common.PtrString(c.Query("redirectResult")),
+			Payload:        common.PtrString(c.Query("payload")),
+		},
+	})
 	log.Printf("Request for %s API::\n%+v\n", "PaymentDetails", req)
-	res, httpRes, err := client.Checkout.PaymentsDetails(&req)
+	res, httpRes, err := service.PaymentsApi.PaymentsDetails(context.Background(), req)
 	log.Printf("HTTP Response for %s API::\n%+v\n", "PaymentDetails", httpRes)
 	if err != nil {
 		handleError("RedirectHandler", c, err, httpRes)
@@ -128,26 +135,29 @@ func RedirectHandler(c *gin.Context) {
 	}
 	log.Printf("Response for %s API::\n%+v\n", "PaymentDetails", res)
 
-	if res.PspReference != "" {
+	if !common.IsNil(*res.PspReference) {
 		var redirectURL string
 		// Conditionally handle different result codes for the shopper
 		switch *res.ResultCode {
-		case common.Authorised:
+		case "Authorised":
 			redirectURL = "/result/success"
 			break
-		case common.Pending:
-		case common.Received:
+		case "Pending":
+		case "Received":
 			redirectURL = "/result/pending"
 			break
-		case common.Refused:
+		case "Refused":
 			redirectURL = "/result/failed"
 			break
 		default:
 			{
-				reason := res.RefusalReason
-				if reason == "" {
-					reason = res.ResultCode.String()
+				reason := *res.RefusalReason
+				log.Printf(reason)
+				if !common.IsNil(reason) {
+					reason = *res.ResultCode
 				}
+				log.Printf(reason)
+				log.Printf("res1" + *res.ResultCode)
 				redirectURL = fmt.Sprintf("/result/error?reason=%s", url.QueryEscape(reason))
 				break
 			}
@@ -163,44 +173,6 @@ func RedirectHandler(c *gin.Context) {
 }
 
 /* Utils */
-
-func findCurrency(typ string) string {
-	switch typ {
-	case "ach":
-		return "USD"
-	case "wechatpayqr":
-	case "alipay":
-		return "CNY"
-	case "dotpay":
-		return "PLN"
-	case "boletobancario":
-	case "boletobancario_santander":
-		return "BRL"
-	default:
-		return "EUR"
-	}
-	return ""
-}
-
-func getPaymentType(pm interface{}) string {
-	switch v := pm.(type) {
-	case *checkout.CardDetails:
-		return v.Type
-	case *checkout.IdealDetails:
-		return v.Type
-	case *checkout.DotpayDetails:
-		return v.Type
-	case *checkout.GiropayDetails:
-		return v.Type
-	case *checkout.AchDetails:
-		return v.Type
-	case *checkout.KlarnaDetails:
-		return v.Type
-	case map[string]interface{}:
-		return v["type"].(string)
-	}
-	return ""
-}
 
 func handleError(method string, c *gin.Context, err error, httpRes *http.Response) {
 	log.Printf("Error in %s: %s\n", method, err.Error())
