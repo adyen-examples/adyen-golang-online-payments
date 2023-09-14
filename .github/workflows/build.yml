@@ -2,9 +2,18 @@ name: Go
 
 on:
   push:
+    paths-ignore:
+      - '**/README.md'
+      - .gitignore
+      - .gitpod.yml
+      - LICENSE
   pull_request:
     branches: [ main ]
-
+    paths-ignore:
+      - '**/README.md'
+      - .gitignore
+      - .gitpod.yml
+      - LICENSE
 jobs:
 
   build:
