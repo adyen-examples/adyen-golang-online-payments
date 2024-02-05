@@ -7,35 +7,23 @@
 * Set the `ADYEN_API_KEY`, `ADYEN_CLIENT_KEY`, `ADYEN_HMAC_KEY` and `ADYEN_MERCHANT_ACCOUNT variables`.
 * Click the button below!
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/adyen-examples/adyen-golang-online-payments)
+_NOTE: To allow the Adyen Drop-In and Components to load, you have to add `https://*.gitpod.io` as allowed origin for your chosen set of [API Credentials](https://ca-test.adyen.com/ca/ca/config/api_credentials_new.shtml)_  
 
-_NOTE: To allow the Adyen Drop-In and Components to load, you have to add `https://*.gitpod.io` as allowed origin for your chosen set of [API Credentials](https://ca-test.adyen.com/ca/ca/config/api_credentials_new.shtml)_
+  
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/adyen-examples/adyen-golang-online-payments)  
+&nbsp;[First time with Gitpod?](https://github.com/adyen-examples/.github/blob/main/pages/gitpod-get-started.md)
 
 ## Details
 
-This repository includes examples of PCI-compliant UI integrations for online payments with Adyen. Within this demo app, you'll find a simplified version of an e-commerce website, complete with commented code to highlight key features and concepts of Adyen's API. Check out the underlying code to see how you can integrate Adyen to give your shoppers the option to pay with their preferred payment methods, all in a seamless checkout experience.
+This repository showcases a PCI-compliant integration of the [Sessions Flow](https://docs.adyen.com/online-payments/build-your-integration/additional-use-cases/), the default integration that we recommend for merchants. Explore this simplified e-commerce demo to discover the code, libraries and configuration you need to enable various payment options in your checkout experience.  
 
 ![Card checkout demo](static/images/cardcheckout.gif)
 
-## Supported Integrations
-
-[Online payments](https://docs.adyen.com/online-payments) **Golang + Gin Gonic** demos of the following client-side integrations are currently available in this repository:
-
-- Drop-in
-- Components
-  - ACH
-  - Card (3DS2)
-  - Dotpay
-  - giropay
-  - iDEAL
-  - Klarna (Pay now, Pay later, Slice it)
-  - SOFORT
-
-Each demo leverages Adyen's API Library for Golang ([GitHub](https://github.com/Adyen/adyen-go-api-library) | [Docs](https://docs.adyen.com/development-resources/libraries#go)).
+The demo leverages Adyen's API Library for Golang ([GitHub](https://github.com/Adyen/adyen-go-api-library) | [Docs](https://docs.adyen.com/development-resources/libraries#go)).
 
 ## Requirements
 
-Golang 1.14+
+Golang 1.19+
 
 ## Installation
 
@@ -75,82 +63,29 @@ go run -v .
 
 To try out integrations with test card numbers and payment method details, see [Test card numbers](https://docs.adyen.com/development-resources/test-cards/test-card-numbers).
 
-## Run in Docker
+# Webhooks
 
-Alternatively you can build and run a Docker image
+Webhooks deliver asynchronous notifications about the payment status and other events that are important to receive and process. 
+You can find more information about webhooks in [this blog post](https://www.adyen.com/knowledge-hub/consuming-webhooks).
 
-```
-# Build image locally
-docker build -t adyen/golang-online-payments .
+### Webhook setup
 
-# Run image passing env variables
-docker run --rm -e "PORT=8080" -e "ADYEN_API_KEY=abc123" -e "ADYEN_MERCHANT_ACCOUNT=TestAccount123" -e "ADYEN_CLIENT_KEY=tyu123"  --name adyen-golang-online-payments -p 8080:8080 adyen/golang-online-payments
-```
+In the Customer Area under the `Developers → Webhooks` section, [create](https://docs.adyen.com/development-resources/webhooks/#set-up-webhooks-in-your-customer-area) a new `Standard webhook`.
 
-## Testing webhooks
+A good practice is to set up basic authentication, copy the generated HMAC Key and set it as an environment variable. The application will use this to verify the [HMAC signatures](https://docs.adyen.com/development-resources/webhooks/verify-hmac-signatures/).
 
-Webhooks deliver asynchronous notifications and it is important to test them during the setup of your integration. You can find more information about webhooks in [this detailed blog post](https://www.adyen.com/blog/Integrating-webhooks-notifications-with-Adyen-Checkout).
+Make sure the webhook is **enabled**, so it can receive notifications.
 
-This sample application provides a simple webhook integration exposed at `/api/webhooks/notifications`. For it to work, you need to:
+### Expose an endpoint
 
-1. Provide a way for the Adyen platform to reach your running application
-2. Add a Standard webhook in your Customer Area
+This demo provides a simple webhook implementation exposed at `/api/webhooks/notifications` that shows you how to receive, validate and consume the webhook payload.
 
-### Making your server reachable
+### Test your webhook
 
-Your endpoint that will consume the incoming webhook must be publicly accessible.
+The following webhooks `events` should be enabled:
+* **AUTHORISATION**
 
-There are typically 3 options:
-* deploy on your own cloud provider
-* deploy on Gitpod
-* expose your localhost with tunneling software (i.e. ngrok)
 
-#### Option 1: cloud deployment
-If you deploy on your cloud provider (or your own public server) the webhook URL will be the URL of the server 
-```
-  https://{cloud-provider}/api/webhooks/notifications
-```
+To make sure that the Adyen platform can reach your application, we have written a [Webhooks Testing Guide](https://github.com/adyen-examples/.github/blob/main/pages/webhooks-testing.md)
+that explores several options on how you can easily achieve this (e.g. running on localhost or cloud).
 
-#### Option 2: Gitpod
-If you use Gitpod the webhook URL will be the host assigned by Gitpod
-```
-  https://myorg-myrepo-y8ad7pso0w5.ws-eu75.gitpod.io/api/webhooks/notifications
-```
-**Note:** when starting a new Gitpod workspace the host changes, make sure to **update the Webhook URL** in the Customer Area
-
-#### Option 3: localhost via tunneling software
-If you use a tunneling service like [ngrok](ngrok) the webhook URL will be the generated URL (ie `https://c991-80-113-16-28.ngrok.io`)
-
-```bash
-  $ ngrok http 8080
-  
-  Session Status                online                                                                                           
-  Account                       ############                                                                      
-  Version                       #########                                                                                          
-  Region                        United States (us)                                                                                 
-  Forwarding                    http://c991-80-113-16-28.ngrok.io -> http://localhost:8080                                       
-  Forwarding                    https://c991-80-113-16-28.ngrok.io -> http://localhost:8080           
-```
-
-**Note:** when restarting ngrok a new URL is generated, make sure to **update the Webhook URL** in the Customer Area
-
-### Set up a webhook
-
-* In the Customer Area go to Developers -> Webhooks and create a new 'Standard notification' webhook.
-* Enter the URL of your application/endpoint (see options [above](#making-your-server-reachable))
-* Define username and password for Basic Authentication
-* Generate the HMAC Key
-* Optionally, in Additional Settings, add the data you want to receive. A good example is 'Payment Account Reference'.
-* Make sure the webhook is **Enabled** (therefore it can receive the notifications)
-
-That's it! Every time you perform a new payment, your application will receive a notification from the Adyen platform.
-
-## Contributing
-
-We commit all our new features directly into our GitHub repository. Feel free to request or suggest new features or code changes yourself as well!
-
-Find out more in our [Contributing](https://github.com/adyen-examples/.github/blob/main/CONTRIBUTING.md) guidelines.
-
-## License
-
-MIT license. For more information, see the **LICENSE** file in the root directory.
