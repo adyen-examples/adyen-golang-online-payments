@@ -90,13 +90,13 @@ func WebhookHandler(c *gin.Context) {
 
 		ret = true
 	} else {
-		// HMAC signature is invalid: do not send [accepted] response
+		// HMAC signature is invalid
 		log.Println("HMAC signature is invalid")
 		ret = false
 	}
 
 	if ret {
-		c.String(200, "[accepted]")
+		c.Status(http.StatusAccepted)
 	} else {
 		c.String(401, "Invalid hmac signature")
 	}
