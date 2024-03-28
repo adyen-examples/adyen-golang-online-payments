@@ -3,15 +3,15 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/adyen/adyen-go-api-library/v7/src/webhook"
+	"github.com/adyen/adyen-go-api-library/v9/src/webhook"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 
-	"github.com/adyen/adyen-go-api-library/v7/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v7/src/common"
-	"github.com/adyen/adyen-go-api-library/v7/src/hmacvalidator"
+	"github.com/adyen/adyen-go-api-library/v9/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v9/src/common"
+	"github.com/adyen/adyen-go-api-library/v9/src/hmacvalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -62,9 +62,9 @@ func SessionsHandler(c *gin.Context) {
 
 }
 
-// WebhookHandler: process incoming webhook notifications (https://docs.adyen.com/development-resources/webhooks)
+// WebhookHandler process incoming webhook notifications (https://docs.adyen.com/development-resources/webhooks)
 func WebhookHandler(c *gin.Context) {
-	log.Println("Webhook received")
+	log.Printf("Webhook received")
 
 	// get webhook request body
 	body, _ := ioutil.ReadAll(c.Request.Body)
@@ -119,7 +119,7 @@ func RedirectHandler(c *gin.Context) {
 	service := client.Checkout()
 
 	req := service.PaymentsApi.PaymentsDetailsInput()
-	req = req.DetailsRequest(checkout.DetailsRequest{
+	req = req.PaymentDetailsRequest(checkout.PaymentDetailsRequest{
 		PaymentData: common.PtrString("1234"),
 		Details: checkout.PaymentCompletionDetails{
 			RedirectResult: common.PtrString(c.Query("redirectResult")),
