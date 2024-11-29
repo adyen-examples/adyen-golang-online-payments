@@ -3,15 +3,15 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/adyen/adyen-go-api-library/v9/src/webhook"
+	"github.com/adyen/adyen-go-api-library/v11/src/webhook"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 
-	"github.com/adyen/adyen-go-api-library/v9/src/checkout"
-	"github.com/adyen/adyen-go-api-library/v9/src/common"
-	"github.com/adyen/adyen-go-api-library/v9/src/hmacvalidator"
+	"github.com/adyen/adyen-go-api-library/v11/src/checkout"
+	"github.com/adyen/adyen-go-api-library/v11/src/common"
+	"github.com/adyen/adyen-go-api-library/v11/src/hmacvalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
