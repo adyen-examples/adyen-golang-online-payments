@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/adyen/adyen-go-api-library/v11/src/adyen"
-	"github.com/adyen/adyen-go-api-library/v11/src/common"
+	"github.com/adyen/adyen-go-api-library/v14/src/adyen"
+	"github.com/adyen/adyen-go-api-library/v14/src/common"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
