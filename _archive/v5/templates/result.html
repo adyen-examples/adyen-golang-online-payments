@@ -1,0 +1,18 @@
+<title>{{ .status }}</title>
+
+<div class="status-container">
+  <div class="status">
+    <img src="/static/images/{{.img}}.svg" class="status-image" alt="{{.img}}" />
+    {{ if not (or (eq .status "failed") (eq .status "error")) }}
+    <img src="/static/images/thank-you.svg" class="status-image" alt="" />
+    {{ end }}
+    <p class="status-message">{{.msg}}</p>
+    {{ if eq .status "error" }}
+    <p class="status-message">
+      Please review response in console and refer to
+      <a href="https://docs.adyen.com/development-resources/response-handling">Response handling.</a>
+    </p>
+    {{ end }}
+    <a class="button" href="/" to="#/">Return Home</a>
+  </div>
+</div>
