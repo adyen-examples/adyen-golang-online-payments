@@ -37,11 +37,13 @@ func PreviewHandler(c *gin.Context) {
 	})
 }
 
-// CheckoutHandler serves the selected page (dropin, card, etc..)
+// CheckoutHandler serves the payment.html page
 func CheckoutHandler(c *gin.Context) {
-	log.Println("Loading page: " + c.Param("type"))
+	log.Println("Loading payment page")
+
 	setPageAndData(c, gin.H{
-		"page":      c.Param("type"),
+		"page":      "payment",
+		"type":      c.Param("type"),
 		"clientKey": clientKey,
 	})
 }

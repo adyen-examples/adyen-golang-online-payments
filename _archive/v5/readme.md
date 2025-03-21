@@ -1,19 +1,8 @@
-# Adyen [online payment](https://docs.adyen.com/online-payments) integration demos
+# Sample app with Adyen Adyen Web 5.68.x.
 
-Checkout sample application using Adyen Drop-in v6 (see [folder /_archive/v5](./_archive/v5) to access the previous version using Adyen Drop-in v5).
+This folder contains the previous version of the sample application that uses **Adyen Web 5.68.x**.
 
-## Run this integration in seconds using [Gitpod](https://gitpod.io/)
-
-* Open your [Adyen Test Account](https://ca-test.adyen.com/ca/ca/overview/default.shtml) and create a set of [API keys](https://docs.adyen.com/user-management/how-to-get-the-api-key).
-* Go to [gitpod account variables](https://gitpod.io/variables).
-* Set the `ADYEN_API_KEY`, `ADYEN_CLIENT_KEY`, `ADYEN_HMAC_KEY` and `ADYEN_MERCHANT_ACCOUNT variables`.
-* Click the button below!
-
-_NOTE: To allow the Adyen Drop-In and Components to load, you have to add `https://*.gitpod.io` as allowed origin for your chosen set of [API Credentials](https://ca-test.adyen.com/ca/ca/config/api_credentials_new.shtml)_  
-
-  
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/adyen-examples/adyen-golang-online-payments)  
-&nbsp;[First time with Gitpod?](https://github.com/adyen-examples/.github/blob/main/pages/gitpod-get-started.md)
+Check the root folder of the repository to use the latest Adyen Web 6.x
 
 ## Details
 
