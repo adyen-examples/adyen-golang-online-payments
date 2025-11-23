@@ -7,4 +7,4 @@ echo "   - ADYEN_API_KEY          (https://docs.adyen.com/user-management/how-to
 echo "   - ADYEN_CLIENT_KEY       (https://docs.adyen.com/user-management/client-side-authentication)"
 echo "   - ADYEN_HMAC_KEY         (https://docs.adyen.com/development-resources/webhooks/verify-hmac-signatures)"
 echo ""
-echo "Then run: go run -v ."
+echo "Then run: go run main.go"

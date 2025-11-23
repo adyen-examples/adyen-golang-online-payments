@@ -54,7 +54,7 @@ export ADYEN_HMAC_KEY="your_adyen_hmac_key"
 4. Start the server:
 
 ```
-go run -v .
+go run main.go
 ```
 
 5. Visit [http://localhost:8080/](http://localhost:8080/) and select an integration type.
