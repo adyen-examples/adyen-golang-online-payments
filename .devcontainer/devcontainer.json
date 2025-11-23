@@ -1,0 +1,29 @@
+{
+	"name": "Adyen Golang Online Payments",
+	"image": "mcr.microsoft.com/devcontainers/go:1.19",
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+
+	"postCreateCommand": "go mod download",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go"
+			]
+		}
+	},
+
+    "postAttachCommand": "bash .devcontainer/setup.sh",
+
+	"forwardPorts": [8080],
+
+    "portsAttributes": {
+    "8080": {
+      "label": "Go App",
+      "onAutoForward": "notify"
+    }
+  }
+
+}
