@@ -1,18 +1,15 @@
 package web
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/adyen/adyen-go-api-library/v14/src/adyen"
-	"github.com/adyen/adyen-go-api-library/v14/src/common"
+	"github.com/adyen/adyen-go-api-library/v21/src/adyen"
+	"github.com/adyen/adyen-go-api-library/v21/src/common"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
-const adyenWebVersion = "6.6.0"
 
 var (
 	client          *adyen.APIClient
@@ -26,9 +23,9 @@ func Init() {
 	godotenv.Load("./.env")
 
 	client = adyen.NewClient(&common.Config{
-		ApiKey:      os.Getenv("ADYEN_API_KEY"),
-		Environment: common.TestEnv,
-		UserAgent:   fmt.Sprintf("%s/%s adyen-golang-online-payments checkout-example adyen-web/%s", common.LibName, common.LibVersion, adyenWebVersion),
+		ApiKey:          os.Getenv("ADYEN_API_KEY"),
+		Environment:     common.TestEnv,
+		ApplicationName: "adyen-golang-online-payments checkout-example adyen-web/6.6.0",
 	})
 
 	port = os.Getenv("PORT")
