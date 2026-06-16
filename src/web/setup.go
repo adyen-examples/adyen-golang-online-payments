@@ -23,9 +23,11 @@ func Init() {
 	godotenv.Load("./.env")
 
 	client = adyen.NewClient(&common.Config{
-		ApiKey:      os.Getenv("ADYEN_API_KEY"),
-		Environment: common.TestEnv,
+		ApiKey:          os.Getenv("ADYEN_API_KEY"),
+		Environment:     common.TestEnv,
+		ApplicationName: "[adyen-golang-online-payments checkout-example adyen-web/6.6.0]",
 	})
+  
 
 	port = os.Getenv("PORT")
 
